@@ -17,4 +17,5 @@ if (require.main === module) {
     });
 }
 
+// Export the server for testing
 module.exports = server;
