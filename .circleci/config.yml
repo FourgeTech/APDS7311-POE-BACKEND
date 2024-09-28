@@ -1,0 +1,66 @@
+# This config was automatically generated from your source code
+# Stacks detected: deps:node:.,test:jest:
+version: 2.1
+orbs:
+  node: circleci/node@5
+
+jobs:
+  test-node:
+    # Install node dependencies and run tests
+    executor: node/default
+    environment:
+      JEST_JUNIT_OUTPUT_DIR: ./test-results/
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          command: npm install jest-junit
+      - run:
+          name: Run tests
+          command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+      - store_test_results:
+          path: ./test-results/
+
+  deploy:
+    # This is an example deploy job, not actually used by the workflow
+    docker:
+      - image: cimg/base:stable
+    steps:
+      # Replace this with steps to deploy to users
+      - run:
+          name: deploy
+          command: '#e.g. ./deploy.sh'
+
+  sonar-analysis:
+    # Run SonarQube analysis
+    docker:
+      - image: sonarsource/sonar-scanner-cli:latest  
+    steps:
+      - checkout
+      - run:
+          # Set the SonarQube project key, host URL and token as environment variables in CircleCI
+          name: Run SonarQube analysis
+          command: |
+            sonar-scanner \
+              -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=$SONAR_HOST_URL \
+              -Dsonar.login=$SONAR_TOKEN     
+
+workflows:
+  build-and-test:
+    jobs:
+      - test-node
+      - sonar-analysis:
+            requires:
+              - test-node
+            filters:
+              branches:
+                only:
+                  - main
+                  - feature/*
+                  - release/*
+    # - deploy:
+    #     requires:
+    #       - test-node
