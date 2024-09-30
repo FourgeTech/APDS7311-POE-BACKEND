@@ -88,3 +88,6 @@ yarn-debug.log
 
 # AWS credential files (if applicable)
 .aws/
+
+# SSL certificate files (if applicable)
+*keys
