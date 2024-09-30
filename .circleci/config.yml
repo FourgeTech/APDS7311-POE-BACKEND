@@ -55,12 +55,6 @@ workflows:
       - sonar-analysis:
             requires:
               - test-node
-            filters:
-              branches:
-                only:
-                  - main
-                  - feature/*
-                  - release/*
     # - deploy:
     #     requires:
     #       - test-node
