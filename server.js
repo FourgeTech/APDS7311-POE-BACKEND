@@ -1,4 +1,14 @@
 const express = require('express');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+
+// Load environment variables from the .env file
+dotenv.config();
+
+console.log(process.env.MONGO_URI);
+
+// Connect to MongoDB
+connectDB();
 
 // Initialize Express app
 const server = express();
@@ -12,7 +22,7 @@ server.get('/', (req, res) => {
 if (require.main === module) {
     // Start the server only if this file is run directly (not in tests)
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
 }
