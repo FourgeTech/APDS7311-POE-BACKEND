@@ -24,6 +24,7 @@ exports.login = async (req, res) => {
         // Send user data back as response (excluding password)
         res.status(200).json({
             message: 'Login successful',
+            customerID: user._id,
             user: {
                 username: user.username,
                 firstName: user.firstName,
