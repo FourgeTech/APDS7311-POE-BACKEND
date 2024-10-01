@@ -4,6 +4,13 @@ const fs = require("fs");
 const app = express();
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const authRoutes = require('./routes/authRoutes');
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Middleware to parse URL-encoded data (for form submissions)
+app.use(express.urlencoded({ extended: true }));
 
 // Test route (for verifying server is up and running)
 app.get("/", (req, res) => {
@@ -11,6 +18,8 @@ app.get("/", (req, res) => {
     .status(200)
     .json({ message: "Customer International Payments Portal API is running" });
 });
+
+app.use('/auth', authRoutes);
 
 //Only runs if the module is run directly (not in tests)
 if (require.main === module) {
