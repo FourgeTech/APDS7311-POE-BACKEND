@@ -48,7 +48,7 @@ const registerValidation = [
     body('lastName')
         .notEmpty().withMessage('Last name is required.')
         .isAlpha().withMessage('Last name must contain only alphabetic characters.'),
-        body('IdNumber')
+        body('IDNumber')
         .notEmpty().withMessage('ID Number is required.')
         .isNumeric().withMessage('ID Number must be a number.')
         .isLength({ min: 13, max: 13 }).withMessage('ID Number must be exactly 13 digits long.'),

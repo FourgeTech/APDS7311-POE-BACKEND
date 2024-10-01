@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'], // Email validation
   },
-  IdNumber: {
+  IDNumber: {
     type: String,
     required: true,
     unique: true,
