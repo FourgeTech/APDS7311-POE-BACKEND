@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors');
 const https = require("https");
 const fs = require("fs");
 const app = express();
@@ -8,6 +9,12 @@ const authRoutes = require('./routes/authRoutes');
 
 // Middleware to parse JSON requests
 app.use(express.json());
+
+// Enable CORS for all routes and methods
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests only from this origin (Vite dev server)
+  credentials: true,               // Allow credentials (cookies, authorization headers, etc.)
+}));
 
 // Middleware to parse URL-encoded data (for form submissions)
 app.use(express.urlencoded({ extended: true }));
