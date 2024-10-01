@@ -1,5 +1,5 @@
 const express = require('express');
-const {body, validationResults} = require('express-validator');
+const {body, validationResult} = require('express-validator');
 const router = express.Router();
 const authController = require('../controllers/authController');
 
@@ -33,5 +33,8 @@ router.post('/login', loginValidation, (req, res) => {
 
 // Define the POST /login route
 // router.post('/login', authController.login);
+
+// Define the POST /register route
+router.post('/register', authController.register);
 
 module.exports = router;
