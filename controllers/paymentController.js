@@ -89,7 +89,7 @@ exports.deletePayment = async (req, res) => {
             return res.status(404).json({ message: 'Payment not found' });
         }
 
-        await payment.remove();
+        await payment.deleteOne();
 
         res.status(200).json({ message: 'Payment deleted successfully' });
     } catch (error) {
