@@ -1,9 +1,23 @@
 const express = require("express");
+const cors = require('cors');
 const https = require("https");
 const fs = require("fs");
 const app = express();
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const authRoutes = require('./routes/authRoutes');
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Enable CORS for all routes and methods
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests only from this origin (Vite dev server)
+  credentials: true,               // Allow credentials (cookies, authorization headers, etc.)
+}));
+
+// Middleware to parse URL-encoded data (for form submissions)
+app.use(express.urlencoded({ extended: true }));
 
 // Test route (for verifying server is up and running)
 app.get("/", (req, res) => {
@@ -11,6 +25,8 @@ app.get("/", (req, res) => {
     .status(200)
     .json({ message: "Customer International Payments Portal API is running" });
 });
+
+app.use('/auth', authRoutes);
 
 //Only runs if the module is run directly (not in tests)
 if (require.main === module) {
