@@ -16,7 +16,7 @@ exports.createPayment = async (req, res) => {
             currency,
             provider,
             payeeAccountNumber,
-            swiftCode: swiftCode === 'N/A' ? 'XXXXXXXX' : swiftCode,
+            swiftCode: swiftCode === "N/A" ? "XXXXXXXX" : swiftCode,
             createdAt: Date.now(),
         });
 

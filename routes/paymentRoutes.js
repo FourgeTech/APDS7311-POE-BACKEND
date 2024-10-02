@@ -23,9 +23,14 @@ const paymentValidation = [
     .isNumeric().withMessage("Payee account number must be a number.")
     .isLength({ min: 11, max: 11 }).withMessage("Payee account number must be exactly 11 digits long."),
 
-  body("swiftCode")
-  .notEmpty().withMessage("SWIFT code is required.")
-  .matches(/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/).withMessage("Invalid SWIFT code format."),
+    body('swiftCode').notEmpty().withMessage('SWIFT code is required.')
+    .custom(value => {
+        const swiftCodeRegex = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
+        if (value === 'N/A' || swiftCodeRegex.test(value)) {
+            return true;
+        }
+        throw new Error('Invalid SWIFT code format.');
+    })
 ];
 
 // Create a new payment
