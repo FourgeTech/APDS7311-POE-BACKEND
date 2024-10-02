@@ -6,6 +6,7 @@ const app = express();
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require('./routes/authRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Middleware to parse JSON requests
 app.use(express.json());
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/payments', paymentRoutes);
 
 //Only runs if the module is run directly (not in tests)
 if (require.main === module) {

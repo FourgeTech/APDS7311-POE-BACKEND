@@ -60,7 +60,7 @@ const paymentSchema = new mongoose.Schema({
     submittedToSWIFTAt: {
         type: Date,
     },
-    submittedBy: {
+    submittedByEmployee: {
         type: User,
     },
 });
