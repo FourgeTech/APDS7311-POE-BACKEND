@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { create } = require('./userModel');
 
 const paymentSchema = new mongoose.Schema({
     customerID: {
@@ -55,13 +54,13 @@ const paymentSchema = new mongoose.Schema({
         type: Date,
     },
     verifiedBy:{
-        type: User,
+        type: String,
     },
     submittedToSWIFTAt: {
         type: Date,
     },
     submittedByEmployee: {
-        type: User,
+        type: String,
     },
 });
 
