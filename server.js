@@ -1,4 +1,6 @@
 const express = require("express");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const cors = require('cors');
 const https = require("https");
 const fs = require("fs");
@@ -10,6 +12,18 @@ const paymentRoutes = require('./routes/paymentRoutes');
 
 // Middleware to parse JSON requests
 app.use(express.json());
+
+// Middleware to secure the Express app
+app.use(helmet());
+
+// Rate limiter middleware to prevent brute-force attacks
+const globalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 6, // Each IP is allowed 6 requests per minute
+  message: 'Too many requests from this IP, please try again later',
+});
+
+app.use(globalLimiter); // Apply Global Limiter to all requests
 
 // Enable CORS for all routes and methods
 app.use(cors({
