@@ -42,7 +42,7 @@ const paymentValidation = [
 ];
 
 // Create a new payment
-router.post("/create", paymentValidation, (req, res) => {
+router.post("/new", paymentValidation, (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
