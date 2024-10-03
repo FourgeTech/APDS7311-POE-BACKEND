@@ -3,15 +3,17 @@ const User = require('../models/userModel');
 
 // Create a new payment
 exports.createPayment = async (req, res) => {
-    const { customerID, paymentAmount, currency, provider, payeeAccountNumber, swiftCode } = req.body;
+    const { customerID, recipientName, recipientBank, paymentAmount, currency, provider, payeeAccountNumber, swiftCode } = req.body;
 
-    if (!customerID || !paymentAmount || !currency || !provider || !payeeAccountNumber || !swiftCode) {
+    if (!customerID || !recipientName || !recipientBank ||!paymentAmount || !currency || !provider || !payeeAccountNumber || !swiftCode) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
     try {
         const newPayment = new Payment({
             customerID,
+            recipientName,
+            recipientBank,
             paymentAmount,
             currency,
             provider,

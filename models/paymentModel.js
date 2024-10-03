@@ -6,6 +6,16 @@ const paymentSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    recipientName:{
+        type: String,
+        required: true,
+        trim: true,
+    },
+    recipientBank: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     paymentAmount: {
         type: Number,
         required: true,

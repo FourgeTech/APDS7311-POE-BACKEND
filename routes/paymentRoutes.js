@@ -8,6 +8,14 @@ const paymentValidation = [
   body("customerID")
   .notEmpty().withMessage("Customer ID is required."),
 
+  body("recipientName")
+  .notEmpty().withMessage("Recipient name is required.")
+  .isAlpha().withMessage("Recipient name must contain only alphabetic characters."),
+
+  body("recipientBank")
+  .notEmpty().withMessage("Recipient bank is required.")
+  .isAlpha().withMessage("Recipient bank must contain only alphabetic characters."),
+
   body("paymentAmount")
     .notEmpty().withMessage("Payment amount is required.")
     .isNumeric().withMessage("Payment amount must be a number."),
