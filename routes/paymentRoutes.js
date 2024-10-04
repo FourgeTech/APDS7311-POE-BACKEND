@@ -79,6 +79,8 @@ router.post("/new", paymentValidation, (req, res) => {
 // Get payment details by ID
 router.get("/:id", paymentController.getPaymentById);
 
+router.get("/customer/:id", paymentController.getPaymentsByUserId);
+
 // Update payment status
 router.put("/:id", (req, res) => {
   paymentController.updatePaymentStatus(req, res);

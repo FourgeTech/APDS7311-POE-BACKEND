@@ -24,6 +24,17 @@ exports.createPayment = async (req, res) => {
 
         await newPayment.save();
 
+        // Update the user's balances and total sent
+        const user = await User.findById(customerID);
+        if (!user) {
+            return res.status(404).send({ error: 'User not found' });
+        }
+
+        user.availableBalance -= paymentAmount;
+        user.totalSent += paymentAmount;
+
+        await user.save();
+
         res.status(201).json({
             message: 'Payment created successfully',
             payment: newPayment
@@ -68,6 +79,12 @@ exports.updatePaymentStatus = async (req, res) => {
             payment.verifiedAt = new Date();
         } else if (paymentStatus === 'Submitted') {
             payment.submittedToSWIFTAt = new Date();
+            const user = await User.findById(payment.customerID);
+            if (!user) {
+                return res.status(404).send({ error: 'User not found' });
+            }
+            user.latestBalance -= payment.paymentAmount;
+            await user.save();
         }
 
         await payment.save();
@@ -101,15 +118,14 @@ exports.deletePayment = async (req, res) => {
 
 // Get payments by User ID
 exports.getPaymentsByUserId = async (req, res) => {
-    const { userId } = req.params;
-
+    const userId = req.params.id;
     try {
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const payments = await Payment.find({ customerID: user.customerID });
+        const payments = await Payment.find({ customerID: userId });
         if (!payments || payments.length === 0) {
             return res.status(404).json({ message: 'No payments found for this user' });
         }
