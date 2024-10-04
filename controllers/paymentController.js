@@ -118,15 +118,14 @@ exports.deletePayment = async (req, res) => {
 
 // Get payments by User ID
 exports.getPaymentsByUserId = async (req, res) => {
-    const { userId } = req.params;
-
+    const userId = req.params.id;
     try {
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const payments = await Payment.find({ customerID: user.customerID });
+        const payments = await Payment.find({ customerID: userId });
         if (!payments || payments.length === 0) {
             return res.status(404).json({ message: 'No payments found for this user' });
         }
