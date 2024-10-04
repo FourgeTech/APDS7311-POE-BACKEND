@@ -58,6 +58,8 @@ router.put("/:id", (req, res) => {
   paymentController.updatePaymentStatus(req, res);
 });
 
+router.get("/dashboard/:id", paymentController.getDashboardData);
+
 // Delete a payment
 router.delete("/:id", paymentController.deletePayment);
 

@@ -119,3 +119,29 @@ exports.getPaymentsByUserId = async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
+//Gets dashboard data
+exports.getDashboardData = async (req, res) => {
+    try {
+      const userId = req.params.id;
+  
+      // Fetch user data using the document ID
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Prepare dashboard data
+      const dashboardData = {
+        accountNumber: user.accountNumber,
+        availableBalance: user.availableBalance,
+        latestBalance: user.latestBalance,
+        totalSent: user.totalSent,
+        totalReceived: user.totalReceived
+      };
+  
+      res.json(dashboardData);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+    }
+  };                      
