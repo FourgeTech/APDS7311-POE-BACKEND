@@ -43,6 +43,8 @@ const paymentValidation = [
 
 
 const depositValidation = [
+  body("customerID")
+  .notEmpty().withMessage("Customer ID is required."),
   body('amount')
     .notEmpty().withMessage('Amount is required.')
     .isFloat({ gt: 0 }).withMessage('Amount must be a positive number.'),

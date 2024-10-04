@@ -165,8 +165,7 @@ exports.getDashboardData = async (req, res) => {
   
   exports.createDeposit = async (req, res) => {
     try {
-      const { amount, cardNumber, expiryDate, cvv } = req.body;
-      const userId = req.user.id; // Assuming user ID is available in the request
+      const { customerID, amount, cardNumber, expiryDate, cvv } = req.body;
   
       // Validate card details (this is a placeholder, replace with actual validation logic)
       if (!validateCardDetails(cardNumber, expiryDate, cvv)) {
@@ -174,7 +173,7 @@ exports.getDashboardData = async (req, res) => {
       }
   
       // Update user balance
-      const user = await User.findById(userId);
+      const user = await User.findById(customerID);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -185,7 +184,8 @@ exports.getDashboardData = async (req, res) => {
   
       res.status(200).json({ message: 'Deposit successful', balance: user.availableBalance });
     } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+        console.error('Error creating deposit:', error); // Log the error
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
   };
 
