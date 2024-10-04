@@ -144,4 +144,38 @@ exports.getDashboardData = async (req, res) => {
     } catch (error) {
       res.status(500).json({ message: 'Server error', error });
     }
-  };                      
+  };    
+  
+  
+  exports.createDeposit = async (req, res) => {
+    try {
+      const { amount, cardNumber, expiryDate, cvv } = req.body;
+      const userId = req.user.id; // Assuming user ID is available in the request
+  
+      // Validate card details (this is a placeholder, replace with actual validation logic)
+      if (!validateCardDetails(cardNumber, expiryDate, cvv)) {
+        return res.status(400).json({ message: 'Invalid card details' });
+      }
+  
+      // Update user balance
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      user.availableBalance += parseFloat(amount);
+      user.latestBalance += parseFloat(amount);
+      await user.save();
+  
+      res.status(200).json({ message: 'Deposit successful', balance: user.availableBalance });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error });
+    }
+  };
+
+  // Placeholder function for card validation
+const validateCardDetails = (cardNumber, expiryDate, cvv) => {
+    // TESTING: Implement actual card validation logic here
+    return true;
+  };
+  

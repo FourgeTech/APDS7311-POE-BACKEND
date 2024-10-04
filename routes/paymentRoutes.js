@@ -41,6 +41,32 @@ const paymentValidation = [
     })
 ];
 
+
+const depositValidation = [
+  body('amount')
+    .notEmpty().withMessage('Amount is required.')
+    .isFloat({ gt: 0 }).withMessage('Amount must be a positive number.'),
+  body('cardNumber')
+    .notEmpty().withMessage('Card number is required.')
+    .isLength({ min: 16, max: 16 }).withMessage('Card number must be 16 digits long.'),
+  body('expiryDate')
+    .notEmpty().withMessage('Expiry date is required.')
+    .matches(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/).withMessage('Invalid expiry date format.'),
+  body('cvv')
+    .notEmpty().withMessage('CVV is required.')
+    .isLength({ min: 3, max: 4 }).withMessage('CVV must be 3 or 4 digits long.')
+];
+
+// Create a new deposit
+router.post("/deposit", depositValidation, (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  paymentController.createDeposit(req, res);
+});
+
+
 // Create a new payment
 router.post("/new", paymentValidation, (req, res) => {
   const errors = validationResult(req);
