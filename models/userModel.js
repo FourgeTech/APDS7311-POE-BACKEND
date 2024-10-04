@@ -62,6 +62,10 @@ const userSchema = new mongoose.Schema({
     enum: ['customer', 'employee'], // Customer or employee role
     default: 'customer',
   },
+  accountBalance: {
+    type: Number,
+    default: 0,
+  },
 });
 
 // Hash the password before saving the user to the database
