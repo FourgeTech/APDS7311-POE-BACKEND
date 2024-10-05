@@ -2,12 +2,10 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const router = express.Router();
 const paymentController = require("../controllers/paymentController");
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Validation for creating a payment
 const paymentValidation = [
-  body("customerID")
-  .notEmpty().withMessage("Customer ID is required."),
-
   body("recipientName")
   .notEmpty().withMessage("Recipient name is required.")
   .isAlpha().withMessage("Recipient name must contain only alphabetic characters."),
@@ -43,8 +41,6 @@ const paymentValidation = [
 
 
 const depositValidation = [
-  body("customerID")
-  .notEmpty().withMessage("Customer ID is required."),
   body('amount')
     .notEmpty().withMessage('Amount is required.')
     .isFloat({ gt: 0 }).withMessage('Amount must be a positive number.'),
@@ -60,7 +56,7 @@ const depositValidation = [
 ];
 
 // Create a new deposit
-router.post("/deposit", depositValidation, (req, res) => {
+router.post("/deposit", authMiddleware, depositValidation, (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -70,7 +66,7 @@ router.post("/deposit", depositValidation, (req, res) => {
 
 
 // Create a new payment
-router.post("/new", paymentValidation, (req, res) => {
+router.post("/new", authMiddleware, paymentValidation, (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -79,18 +75,22 @@ router.post("/new", paymentValidation, (req, res) => {
 });
 
 // Get payment details by ID
-router.get("/:id", paymentController.getPaymentById);
+router.get("/:id", authMiddleware, paymentController.getPaymentById);
 
-router.get("/customer/:id", paymentController.getPaymentsByUserId);
+router.get("/customer/:id", authMiddleware, (req, res) => {
+  paymentController.getPaymentsByUserId(req, res);
+});
 
 // Update payment status
-router.put("/:id", (req, res) => {
+router.put("/:id", authMiddleware, (req, res) => {
   paymentController.updatePaymentStatus(req, res);
 });
 
-router.get("/dashboard/:id", paymentController.getDashboardData);
+router.get("/dashboard/:id", authMiddleware, (req,res)  => {
+  paymentController.getDashboardData(req,res);
+});
 
 // Delete a payment
-router.delete("/:id", paymentController.deletePayment);
+router.delete("/:id", authMiddleware, paymentController.deletePayment);
 
 module.exports = router;

@@ -1,5 +1,9 @@
 const User = require('../models/userModel');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+// Example Secret (should store securely in an env variable)
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Register user method
 exports.register = async (req, res) => {
@@ -67,16 +71,21 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Invalid password' });
         }
 
+        // Generate JWT payload (include user ID, email, and possibly other data)
+        const payload = { userId: user._id, email: user.email, accountNumber: user.accountNumber };
+        
+         // Sign the JWT token
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+
         // Send user data back as response (excluding password)
         res.status(200).json({
             message: 'Login successful',
-            customerID: user._id,
+            token,
             user: {
                 username: user.username,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                // Do not send sensitive info like password
             }
         });
     } catch (error) {

@@ -3,7 +3,9 @@ const User = require('../models/userModel');
 
 // Create a new payment
 exports.createPayment = async (req, res) => {
-    const { customerID, recipientName, recipientBank, paymentAmount, currency, provider, payeeAccountNumber, swiftCode } = req.body;
+    const {recipientName, recipientBank, paymentAmount, currency, provider, payeeAccountNumber, swiftCode } = req.body;
+    const { userId} = req.user;
+    const customerID = userId;
 
     if (!customerID || !recipientName || !recipientBank ||!paymentAmount || !currency || !provider || !payeeAccountNumber || !swiftCode) {
         return res.status(400).json({ message: 'All fields are required' });
@@ -37,7 +39,6 @@ exports.createPayment = async (req, res) => {
 
         res.status(201).json({
             message: 'Payment created successfully',
-            payment: newPayment
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
@@ -118,14 +119,16 @@ exports.deletePayment = async (req, res) => {
 
 // Get payments by User ID
 exports.getPaymentsByUserId = async (req, res) => {
-    const userId = req.params.id;
+    const { userId } = req.user;
+    const customerID = userId;
+
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(customerID);// Use ObjectId for User model
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const payments = await Payment.find({ customerID: userId });
+        const payments = await Payment.find({ customerID: customerID });
         if (!payments || payments.length === 0) {
             return res.status(404).json({ message: 'No payments found for this user' });
         }
@@ -136,37 +139,40 @@ exports.getPaymentsByUserId = async (req, res) => {
     }
 };
 
-//Gets dashboard data
+
+// Get dashboard data
 exports.getDashboardData = async (req, res) => {
     try {
-      const userId = req.params.id;
-  
-      // Fetch user data using the document ID
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // Prepare dashboard data
-      const dashboardData = {
-        accountNumber: user.accountNumber,
-        availableBalance: user.availableBalance,
-        latestBalance: user.latestBalance,
-        totalSent: user.totalSent,
-        totalReceived: user.totalReceived
-      };
-  
-      res.json(dashboardData);
+        const { userId } = req.user;
+
+        // Fetch user data using the document ID
+        const user = await User.findById(userId); // Use ObjectId for User model
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prepare dashboard data
+        const dashboardData = {
+            accountNumber: user.accountNumber,
+            availableBalance: user.availableBalance,
+            latestBalance: user.latestBalance,
+            totalSent: user.totalSent,
+            totalReceived: user.totalReceived
+        };
+
+        res.json(dashboardData);
     } catch (error) {
-      res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: 'Server error', error, userId: req.user.userId });
     }
-  };    
+};
   
   
   exports.createDeposit = async (req, res) => {
     try {
-      const { customerID, amount, cardNumber, expiryDate, cvv } = req.body;
-  
+      const { amount, cardNumber, expiryDate, cvv } = req.body;
+      const { userId} = req.user;
+      const customerID = userId;
+
       // Validate card details (this is a placeholder, replace with actual validation logic)
       if (!validateCardDetails(cardNumber, expiryDate, cvv)) {
         return res.status(400).json({ message: 'Invalid card details' });
