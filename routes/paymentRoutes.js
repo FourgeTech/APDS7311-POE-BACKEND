@@ -2,12 +2,10 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const router = express.Router();
 const paymentController = require("../controllers/paymentController");
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Validation for creating a payment
 const paymentValidation = [
-  body("customerID")
-  .notEmpty().withMessage("Customer ID is required."),
-
   body("recipientName")
   .notEmpty().withMessage("Recipient name is required.")
   .isAlpha().withMessage("Recipient name must contain only alphabetic characters."),
@@ -41,8 +39,34 @@ const paymentValidation = [
     })
 ];
 
+
+const depositValidation = [
+  body('amount')
+    .notEmpty().withMessage('Amount is required.')
+    .isFloat({ gt: 0 }).withMessage('Amount must be a positive number.'),
+  body('cardNumber')
+    .notEmpty().withMessage('Card number is required.')
+    .isLength({ min: 16, max: 16 }).withMessage('Card number must be 16 digits long.'),
+  body('expiryDate')
+    .notEmpty().withMessage('Expiry date is required.')
+    .matches(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/).withMessage('Invalid expiry date format.'),
+  body('cvv')
+    .notEmpty().withMessage('CVV is required.')
+    .isLength({ min: 3, max: 4 }).withMessage('CVV must be 3 or 4 digits long.')
+];
+
+// Create a new deposit
+router.post("/deposit", authMiddleware, depositValidation, (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  paymentController.createDeposit(req, res);
+});
+
+
 // Create a new payment
-router.post("/new", paymentValidation, (req, res) => {
+router.post("/new", authMiddleware, paymentValidation, (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -51,14 +75,22 @@ router.post("/new", paymentValidation, (req, res) => {
 });
 
 // Get payment details by ID
-router.get("/:id", paymentController.getPaymentById);
+router.get("/:id", authMiddleware, paymentController.getPaymentById);
+
+router.get("/customer/:id", authMiddleware, (req, res) => {
+  paymentController.getPaymentsByUserId(req, res);
+});
 
 // Update payment status
-router.put("/:id", (req, res) => {
+router.put("/:id", authMiddleware, (req, res) => {
   paymentController.updatePaymentStatus(req, res);
 });
 
+router.get("/dashboard/:id", authMiddleware, (req,res)  => {
+  paymentController.getDashboardData(req,res);
+});
+
 // Delete a payment
-router.delete("/:id", paymentController.deletePayment);
+router.delete("/:id", authMiddleware, paymentController.deletePayment);
 
 module.exports = router;

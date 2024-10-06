@@ -3,7 +3,9 @@ const User = require('../models/userModel');
 
 // Create a new payment
 exports.createPayment = async (req, res) => {
-    const { customerID, recipientName, recipientBank, paymentAmount, currency, provider, payeeAccountNumber, swiftCode } = req.body;
+    const {recipientName, recipientBank, paymentAmount, currency, provider, payeeAccountNumber, swiftCode } = req.body;
+    const { userId} = req.user;
+    const customerID = userId;
 
     if (!customerID || !recipientName || !recipientBank ||!paymentAmount || !currency || !provider || !payeeAccountNumber || !swiftCode) {
         return res.status(400).json({ message: 'All fields are required' });
@@ -24,9 +26,19 @@ exports.createPayment = async (req, res) => {
 
         await newPayment.save();
 
+        // Update the user's balances and total sent
+        const user = await User.findById(customerID);
+        if (!user) {
+            return res.status(404).send({ error: 'User not found' });
+        }
+
+        user.availableBalance -= paymentAmount;
+        user.totalSent += paymentAmount;
+
+        await user.save();
+
         res.status(201).json({
             message: 'Payment created successfully',
-            payment: newPayment
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
@@ -68,6 +80,12 @@ exports.updatePaymentStatus = async (req, res) => {
             payment.verifiedAt = new Date();
         } else if (paymentStatus === 'Submitted') {
             payment.submittedToSWIFTAt = new Date();
+            const user = await User.findById(payment.customerID);
+            if (!user) {
+                return res.status(404).send({ error: 'User not found' });
+            }
+            user.latestBalance -= payment.paymentAmount;
+            await user.save();
         }
 
         await payment.save();
@@ -101,15 +119,16 @@ exports.deletePayment = async (req, res) => {
 
 // Get payments by User ID
 exports.getPaymentsByUserId = async (req, res) => {
-    const { userId } = req.params;
+    const { userId } = req.user;
+    const customerID = userId;
 
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(customerID);// Use ObjectId for User model
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const payments = await Payment.find({ customerID: user.customerID });
+        const payments = await Payment.find({ customerID: customerID });
         if (!payments || payments.length === 0) {
             return res.status(404).json({ message: 'No payments found for this user' });
         }
@@ -119,3 +138,66 @@ exports.getPaymentsByUserId = async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
+
+// Get dashboard data
+exports.getDashboardData = async (req, res) => {
+    try {
+        const { userId } = req.user;
+
+        // Fetch user data using the document ID
+        const user = await User.findById(userId); // Use ObjectId for User model
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prepare dashboard data
+        const dashboardData = {
+            accountNumber: user.accountNumber,
+            availableBalance: user.availableBalance,
+            latestBalance: user.latestBalance,
+            totalSent: user.totalSent,
+            totalReceived: user.totalReceived
+        };
+
+        res.json(dashboardData);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error, userId: req.user.userId });
+    }
+};
+  
+  
+  exports.createDeposit = async (req, res) => {
+    try {
+      const { amount, cardNumber, expiryDate, cvv } = req.body;
+      const { userId} = req.user;
+      const customerID = userId;
+
+      // Validate card details (this is a placeholder, replace with actual validation logic)
+      if (!validateCardDetails(cardNumber, expiryDate, cvv)) {
+        return res.status(400).json({ message: 'Invalid card details' });
+      }
+  
+      // Update user balance
+      const user = await User.findById(customerID);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      user.availableBalance += parseFloat(amount);
+      user.latestBalance += parseFloat(amount);
+      await user.save();
+  
+      res.status(200).json({ message: 'Deposit successful', balance: user.availableBalance });
+    } catch (error) {
+        console.error('Error creating deposit:', error); // Log the error
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+
+  // Placeholder function for card validation
+const validateCardDetails = (cardNumber, expiryDate, cvv) => {
+    // TESTING: Implement actual card validation logic here
+    return true;
+  };
+  
