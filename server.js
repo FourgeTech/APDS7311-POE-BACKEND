@@ -16,6 +16,8 @@ app.use(express.json());
 // Middleware to secure the Express app
 app.use(helmet());
 
+app.set('trust proxy', 1); 
+
 // Rate limiter middleware to prevent brute-force attacks
 const globalLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute

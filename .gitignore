@@ -91,3 +91,4 @@ yarn-debug.log
 
 # SSL certificate files (if applicable)
 *keys
+.vercel
