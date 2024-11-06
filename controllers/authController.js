@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Employee = require('../models/employeeModel');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -51,7 +52,7 @@ exports.register = async (req, res) => {
 };
 
 // Login user method
-exports.login = async (req, res) => {
+exports.loginCustomer = async (req, res) => {
     const { username, accountNumber, password } = req.body;
 
     if (!username || !accountNumber || !password) {
@@ -86,6 +87,50 @@ exports.login = async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+
+// Login employee method
+exports.loginEmployee = async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    try {
+        // Check if employee exists
+        const employee = await Employee.findOne({ username });
+        if (!employee) {
+            return res.status(400).json({ message: 'Invalid username' });
+        } 
+
+        // Compare the password
+        const isMatch = await employee.comparePassword(password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid password' });
+        }
+
+        // Generate JWT payload
+        const payload = { userId: employee._id, email: employee.email };
+        
+        // Sign the JWT token
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+
+        // Send employee data back as response (excluding password)
+        res.status(200).json({
+            message: 'Login successful',
+            token,
+            user: {
+                username: employee.username,
+                firstName: employee.firstName,
+                lastName: employee.lastName,
+                email: employee.email,
             }
         });
     } catch (error) {
