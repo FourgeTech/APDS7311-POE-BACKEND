@@ -74,6 +74,18 @@ router.post("/new", authMiddleware, paymentValidation, (req, res) => {
   paymentController.createPayment(req, res);
 });
 
+// Get all payments
+router.get("/all", authMiddleware, paymentController.getAllPayments);
+
+// Get all pending payments
+router.get("/pending", authMiddleware, paymentController.getPendingPayments);
+
+// Get all approved payments
+router.get("/approved", authMiddleware, paymentController.getApprovedPayments);
+
+// Get all rejected payments
+router.get("/rejected", authMiddleware, paymentController.getRejectedPayments);
+
 // Get payment details by ID
 router.get("/:id", authMiddleware, paymentController.getPaymentById);
 

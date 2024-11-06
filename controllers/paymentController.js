@@ -139,6 +139,61 @@ exports.getPaymentsByUserId = async (req, res) => {
     }
 };
 
+// Get all pending payments
+exports.getPendingPayments = async (req, res) => {
+    try {
+        const pendingPayments = await Payment.find({ paymentStatus: 'Pending' });
+        if (!pendingPayments || pendingPayments.length === 0) {
+            return res.status(404).json({ message: 'No pending payments found' });
+        }
+
+        res.status(200).json(pendingPayments);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+// Get all Approved payments
+exports.getApprovedPayments = async (req, res) => {
+    try {
+        const approvedPayments = await Payment.find({ paymentStatus: 'Approved' });
+        if (!approvedPayments || approvedPayments.length === 0) {
+            return res.status(404).json({ message: 'No approved payments found' });
+        }
+
+        res.status(200).json(approvedPayments);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+// Get all rejected payments
+exports.getRejectedPayments = async (req, res) => {
+    try {
+        const rejectedPayments = await Payment.find({ paymentStatus: 'Rejected' });
+        if (!rejectedPayments || rejectedPayments.length === 0) {
+            return res.status(404).json({ message: 'No rejected payments found' });
+        }
+
+        res.status(200).json(rejectedPayments);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+// Get all payments
+exports.getAllPayments = async (req, res) => {
+    try {
+        const payments = await Payment.find({});
+        if (!payments || payments.length === 0) {
+            return res.status(404).json({ message: 'No payments found' });
+        }
+
+        res.status(200).json(payments);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
 
 // Get dashboard data
 exports.getDashboardData = async (req, res) => {
@@ -200,4 +255,4 @@ const validateCardDetails = (cardNumber, expiryDate, cvv) => {
     // TESTING: Implement actual card validation logic here
     return true;
   };
-  
+
