@@ -27,16 +27,8 @@ const globalLimiter = rateLimit({
 
 app.use(globalLimiter); // Apply Global Limiter to all requests
 
-// Enable CORS for your frontend
-const corsOptions = {
-  origin: 'http://localhost:5173', 
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true, // Enable this if you're using cookies
-  allowedHeaders: ['Content-Type', 'Authorization'], // Add headers as per your needs
-};
-
 // Enable CORS for all routes and methods
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Middleware to parse URL-encoded data (for form submissions)
 app.use(express.urlencoded({ extended: true }));
