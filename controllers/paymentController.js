@@ -76,9 +76,9 @@ exports.updatePaymentStatus = async (req, res) => {
         payment.verifiedBy = verifiedBy || payment.verifiedBy;
         payment.submittedBy = submittedBy || payment.submittedBy;
 
-        if (paymentStatus === 'Verified') {
+        if (paymentStatus === 'Approved') {
             payment.verifiedAt = new Date();
-        } else if (paymentStatus === 'Submitted') {
+        } else if (paymentStatus === 'Pending') {
             payment.submittedToSWIFTAt = new Date();
             const user = await User.findById(payment.customerID);
             if (!user) {
@@ -125,7 +125,7 @@ exports.getPaymentsByUserId = async (req, res) => {
     try {
         const user = await User.findById(customerID);// Use ObjectId for User model
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found - getpaymentsbyID' });
         }
 
         const payments = await Payment.find({ customerID: customerID });
@@ -198,12 +198,16 @@ exports.getAllPayments = async (req, res) => {
 // Get dashboard data
 exports.getDashboardData = async (req, res) => {
     try {
+        if (!req.user || !req.user.userId) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
         const { userId } = req.user;
 
         // Fetch user data using the document ID
         const user = await User.findById(userId); // Use ObjectId for User model
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found - getdashboarddata' });
         }
 
         // Prepare dashboard data
@@ -212,7 +216,8 @@ exports.getDashboardData = async (req, res) => {
             availableBalance: user.availableBalance,
             latestBalance: user.latestBalance,
             totalSent: user.totalSent,
-            totalReceived: user.totalReceived
+            totalReceived: user.totalReceived,
+            availableTokens: availableTokens // Include available tokens in the response
         };
 
         res.json(dashboardData);
