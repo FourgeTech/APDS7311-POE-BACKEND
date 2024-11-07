@@ -198,16 +198,12 @@ exports.getAllPayments = async (req, res) => {
 // Get dashboard data
 exports.getDashboardData = async (req, res) => {
     try {
-        if (!req.user || !req.user.userId) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
-
         const { userId } = req.user;
 
         // Fetch user data using the document ID
         const user = await User.findById(userId); // Use ObjectId for User model
         if (!user) {
-            return res.status(404).json({ message: 'User not found - getdashboarddata' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         // Prepare dashboard data
@@ -217,7 +213,6 @@ exports.getDashboardData = async (req, res) => {
             latestBalance: user.latestBalance,
             totalSent: user.totalSent,
             totalReceived: user.totalReceived,
-            availableTokens: availableTokens // Include available tokens in the response
         };
 
         res.json(dashboardData);
