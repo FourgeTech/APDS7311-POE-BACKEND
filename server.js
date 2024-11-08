@@ -17,7 +17,7 @@ app.use(helmet());
 // Trust Vercel’s proxy and handle CORS
 app.set('trust proxy', 1);
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://your-frontend-production-url.com'],
+  origin: ['http://localhost:5173', 'https://fourgebank.web.app'],
   credentials: true,
 }));
 
